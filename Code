@@ -1,0 +1,115 @@
+Table table;
+int[] groups = {0, 0, 0, 0, 0};
+color[] colors;
+String[] labels = {"0–20", "20–40", "40–60", "60–80", "80–100"};
+
+void setup() {
+  size(800, 800);
+  background(255);
+  textFont(createFont("Arial", 14));
+
+
+
+  // Define colors for bars
+  colors = new color[]{
+    color(128, 0, 0),
+    color(0, 128, 128),
+    color(0, 0, 128),
+    color(245, 130, 48),
+    color(255, 225, 25)
+  };
+
+  // Count y-values into groups
+  for (TableRow row : table.rows()) {
+    float y = row.getFloat("y");
+    if (y >= 0 && y < 20) groups[0]++;
+    else if (y >= 20 && y < 40) groups[1]++;
+    else if (y >= 40 && y < 60) groups[2]++;
+    else if (y >= 60 && y < 80) groups[3]++;
+    else if (y >= 80 && y <= 100) groups[4]++;
+  }
+
+  // Draw the bar graph
+  drawBarGraph();
+}
+
+// Draw full bar graph with title, axes, and bars
+void drawBarGraph() {
+  background(255);
+  drawTitle();
+  drawYAxis();
+  drawXAxis();
+  drawBars();
+}
+
+// Draw graph title
+void drawTitle() {
+  fill(0);
+  textAlign(CENTER);
+  textSize(24);
+  text("Data set practice", width / 2, 40);
+}
+
+// Draw Y axis with ticks and labels
+void drawYAxis() {
+  stroke(0);
+  line(60, 100, 60, height - 100); // Y axis line
+
+  int maxVal = max(groups);
+  int tickCount = 5;
+  float tickSpacing = (height - 200) / tickCount;
+  int labelSpacing = (int) ceil(maxVal / (float) tickCount);
+
+  textAlign(RIGHT);
+  textSize(12);
+  for (int i = 0; i <= tickCount; i++) {
+    float y = map(i, 0, tickCount, height - 100, 100);
+    int val = i * labelSpacing;
+    stroke(200);
+    line(60, y, width - 40, y);  // Grid line
+    stroke(0);
+    line(55, y, 60, y);  // Tick mark
+    fill(0);
+    text(val, 50, y + 5);
+  }
+}
+
+// Draw X axis and category labels
+void drawXAxis() {
+  stroke(0);
+  line(60, height - 100, width - 40, height - 100); // X axis line
+
+  float barAreaWidth = width - 100;
+  float spacing = 10;
+  float W = (barAreaWidth - spacing * (groups.length - 1)) / groups.length;
+
+  textAlign(CENTER);
+  textSize(12);
+  for (int i = 0; i < labels.length; i++) {
+    float x = 60 + i * (W + spacing) + W / 2;
+    fill(0);
+    text(labels[i], x, height - 80);
+  }
+}
+
+// Draw the bars with counts on top
+void drawBars() {
+  float barAreaWidth = width - 100;
+  float spacing = 10;
+  float W = (barAreaWidth - spacing * (groups.length - 1)) / groups.length;
+  int maxVal = max(groups);
+
+  for (int i = 0; i < groups.length; i++) {
+    float x = 60 + i * (W + spacing);
+    float barHeight = map(groups[i], 0, maxVal, 0, height - 200);
+    float y = height - 100 - barHeight;
+
+    fill(colors[i]);
+    rect(x, y, W, barHeight);
+
+    // Draw count label above bar
+    fill(0);
+    textAlign(CENTER);
+    text(groups[i], x + W / 2, y - 5);
+  }
+}
